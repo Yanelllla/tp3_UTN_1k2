@@ -1,4 +1,4 @@
-import tratamientos
+from core import Tratamiento
 
 def principal():
 
