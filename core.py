@@ -7,3 +7,57 @@ class Tratamiento:
         self.montobase = montobase
         self.complejidad = complejidad
         self.idalgoritmo = idalgoritmo
+
+    def __str__(self):
+        r = "Tratamiento"
+        r += f"|DNI:{self.dni:<8}"
+        r += f"|Nombre:{self.nombre:<12}"
+        r += f"|Apellido:{self.apellido:<12}"
+        r += f"|ICD10:{self.icd10:<8}"
+        r += f"|Monto Base:{self.montobase:<8}"
+        r += f"|Complejidad:{self.complejidad:<4}"
+        r += f"|Id algoritmo:{self.idalgoritmo:<4}"
+        return r
+
+
+def 
+
+def proces_linea(linea: str):
+    data = []
+    palabra = ""
+    for ch in linea:
+        if ch == "," or ch == "\n":
+            data.append(
+                palabra
+            )
+            palabra = ""
+        else:
+            palabra += ch
+    return data
+
+
+def cargar_tratamientos():
+    tratamientos = []
+    with open("tratamientos.csv", "r", encoding="utf-8") as f:
+        f.readline()
+        for linea in f.readlines():
+            data = proces_linea(linea)
+            tratamientos.append(
+                Tratamiento(
+                    dni=data[0],
+                    nombre=data[1],
+                    apellido=data[2],
+                    icd10=data[3],
+                    montobase=data[4],
+                    complejidad=data[5],
+                    idalgoritmo=data[6],
+                )
+            )
+
+    return tratamientos
+
+
+
+if __name__ == "__main__":
+    for i in cargar_tratamientos():
+        print(str(i))
