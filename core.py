@@ -19,8 +19,23 @@ class Tratamiento:
         r += f"|Id algoritmo:{self.idalgoritmo:<4}"
         return r
 
+def calculo1(tratamientos):
+    n = len(tratamientos)
 
-def 
+    for i in range(n):
+        letra = tratamientos.icd10[i][0]
+        punto = tratamientos.icd10[i].find(".")
+        suma_fija = 0
+        porcentaje_extra = 0
+
+        if tratamientos.montobase[i] > 60000:
+            porcentaje_extra = int(tratamientos.icd10[punto + 1:]) / 100
+            if tratamientos.complejidad[i] == "A" and letra != "U":
+                suma_fija = tratamientos.montobase[i] / 2
+
+        monto_final = tratamientos.montobase[i] + porcentaje_extra + suma_fija
+
+    return monto_final
 
 def proces_linea(linea: str):
     data = []
@@ -38,10 +53,12 @@ def proces_linea(linea: str):
 
 def cargar_tratamientos():
     tratamientos = []
+    ct = 0 #Contador de tratamientos
     with open("tratamientos.csv", "r", encoding="utf-8") as f:
         f.readline()
         for linea in f.readlines():
             data = proces_linea(linea)
+            ct += 1
             tratamientos.append(
                 Tratamiento(
                     dni=data[0],
@@ -54,9 +71,7 @@ def cargar_tratamientos():
                 )
             )
 
-    return tratamientos
-
-
+    return tratamientos, ct
 
 if __name__ == "__main__":
     for i in cargar_tratamientos():

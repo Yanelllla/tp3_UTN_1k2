@@ -1,5 +1,5 @@
 from core import Tratamiento
-
+import core
 def principal():
 
     op = -1
