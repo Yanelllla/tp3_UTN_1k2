@@ -21,12 +21,12 @@ class Tratamiento:
 
 def calculo1(tratamientos):
     n = len(tratamientos)
+    suma_fija = 0
+    porcentaje_extra = 0
 
     for i in range(n):
         letra = tratamientos.icd10[i][0]
         punto = tratamientos.icd10[i].find(".")
-        suma_fija = 0
-        porcentaje_extra = 0
 
         if tratamientos.montobase[i] > 60000:
             porcentaje_extra = int(tratamientos.icd10[punto + 1:]) / 100
@@ -35,7 +35,7 @@ def calculo1(tratamientos):
 
         monto_final = tratamientos.montobase[i] + porcentaje_extra + suma_fija
 
-    return monto_final
+        return monto_final
 
 def proces_linea(linea: str):
     data = []
