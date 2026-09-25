@@ -26,7 +26,37 @@ def porcentaje_normal(Tratamiento):
 
     return porcentaje_extra
 
-#Falta terminar
+
+
+def calculonormal(tratamientos):
+    ad_al = 0 #Tengo que arreglar esto(giane)
+    ad_mz = 0
+    ad_u = 0
+    n = len(tratamientos)
+    for cal in range(n):
+        tratamiento = tratamientos[cal]
+        if tratamiento.idalgoritmo > 3:
+
+            letra = tratamientos[cal].icd10[0]
+            if "A" <= letra <= "L":
+                adicional = ad_al
+            elif letra == "U":
+                adicional = ad_u
+            else:
+                adicional = ad_mz
+
+            monto = tratamiento.montobase + adicional
+            punto = tratamiento.icd10.find(".")
+
+            porcentaje = int(tratamiento.icd10[punto + 1:])
+
+            monto_final = monto + (tratamiento.montobase * porcentaje / 100)
+
+    print()
+    return monto_final
+
+
+#Falta terminar el monto_fijo(sabri)
 def monto_fijo(Tratamiento):
     n = len(Tratamiento)
 
