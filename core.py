@@ -31,9 +31,12 @@ def porcentaje_normal(tratamientos):
     return porcentaje_extra
 
 def calculonormal(tratamientos):
-    ad_al = 0 #Tengo que arreglar esto(giane)
-    ad_mz = 0
-    ad_u = 0
+    ad_al = 25000
+    ad_mz = 40000
+    ad_u = 100000
+    fijo = 25000#Monto fijo establecido en el tp1
+
+    montos_finales = []#lista que contendrá todos los resultados que cumplen la condición.
     n = len(tratamientos)
     for cal in range(n):
         tratamiento = tratamientos[cal]
@@ -47,15 +50,15 @@ def calculonormal(tratamientos):
             else:
                 adicional = ad_mz
 
-            monto = tratamiento.montobase + adicional
-            punto = tratamiento.icd10.find(".")
-
-            porcentaje = int(tratamiento.icd10[punto + 1:])
-
-            monto_final = monto + (tratamiento.montobase * porcentaje / 100)
+            punto = tratamiento.icd10.find(".")#Guarda la posicion del punto
+            numpunto = int(tratamiento.icd10[punto + 1:])#Guarda el numero despues del punto
+            monto = tratamiento.montobase + fijo + adicional#Base+fijo+adicional(depende de la letra)
+            porcentaje = round(tratamiento.montobase * numpunto / 100,2)#Saca el porcentaje y lo redondea en dos numeros despues de la coma
+            monto_final = monto + porcentaje
+            montos_finales.append(monto_final)
 
     print()
-    return monto_final
+    return montos_finales
 
 
 
