@@ -7,6 +7,7 @@ class Tratamiento:
         self.montobase = montobase
         self.complejidad = complejidad
         self.idalgoritmo = idalgoritmo
+        self.montos_finales = 0
 
     def __str__(self):
         r = "Tratamiento"
@@ -17,6 +18,7 @@ class Tratamiento:
         r += f"|Monto Base:{self.montobase:<8}"
         r += f"|Complejidad:{self.complejidad:<4}"
         r += f"|Id algoritmo:{self.idalgoritmo:<4}"
+        r += f"|Monto Final:{self.montos_finales:<10}"
         return r
 
 def porcentaje_normal(tratamientos):
@@ -36,31 +38,27 @@ def calculonormal(tratamientos):
     ad_u = 100000
     fijo = 25000#Monto fijo establecido en el tp1
 
-    montos_finales = []#lista que contendrá todos los resultados que cumplen la condición.
     n = len(tratamientos)
     for cal in range(n):
         tratamiento = tratamientos[cal]
-        if tratamiento.idalgoritmo > 3:
 
-            letra = tratamiento[cal].icd10[0]
-            if "A" <= letra <= "L":
-                adicional = ad_al
-            elif letra == "U":
-                adicional = ad_u
-            else:
-                adicional = ad_mz
+        letra = tratamiento.icd10[0]
+        if "A" <= letra <= "L":
+            adicional = ad_al
+        elif letra == "U":
+            adicional = ad_u
+        else:
+            adicional = ad_mz
 
-            punto = tratamiento.icd10.find(".")#Guarda la posicion del punto
-            numpunto = int(tratamiento.icd10[punto + 1:])#Guarda el numero despues del punto
-            monto = tratamiento.montobase + fijo + adicional#Base+fijo+adicional(depende de la letra)
-            porcentaje = round(tratamiento.montobase * numpunto / 100,2)#Saca el porcentaje y lo redondea en dos numeros despues de la coma
-            monto_final = monto + porcentaje
-            montos_finales.append(monto_final)
+        punto = tratamiento.icd10.find(".")#Guarda la posicion del punto
 
-    print()
-    return montos_finales
+        numpunto = int(tratamiento.icd10[punto + 1:])#Guarda el numero despues del punto
 
+        monto = float(tratamiento.montobase) + fijo + adicional #Base+fijo+adicional(depende de la letra)
 
+        porcentaje = round((float(tratamiento.montobase) * numpunto / 100),2)#Saca el porcentaje y lo redondea en dos numeros despues de la coma
+
+        tratamiento.montos_finales = monto + porcentaje
 
 def monto_fijo(tratamientos):
     n = len(tratamientos)
@@ -91,15 +89,13 @@ def calculo1(tratamientos):
 
         letra = tratamiento.icd10[0]
 
-        if tratamientos.montobase > 60000:
+        if tratamiento.montobase > 60000:
             porcentaje_extra = porcentaje_normal(tratamiento)
 
             if tratamiento.complejidad == "A" and letra != "U":
                 suma_fija = tratamiento.montobase / 2
 
-        monto_final = tratamiento.montobase + porcentaje_extra + suma_fija
-
-        return monto_final
+        tratamiento.montos_finales = tratamiento.montobase + porcentaje_extra + suma_fija
 
 def calculo2(tratamientos):
     n = len(tratamientos)
@@ -120,9 +116,7 @@ def calculo2(tratamientos):
             elif tratamientos.complejidad == "R":
                 porcentaje_extra = tratamiento.montobase * 0.15
 
-        monto_final = tratamiento.montobase + porcentaje_extra
-
-        return monto_final
+        tratamiento.montos_finales = tratamiento.montobase + porcentaje_extra
 
 def calculo3(tratamientos):
     n = len(tratamientos)
@@ -139,9 +133,25 @@ def calculo3(tratamientos):
         if monto_extra > 60000:
             monto_extra = 60000
 
-        monto_final = tratamiento.montobase + monto_extra
+        tratamiento.montos_finales = tratamiento.montobase + monto_extra
 
-    return monto_final
+def calcular_monto_final(tratamientos):
+    n = len(tratamientos)
+
+    for i in range(n):
+        tratamiento = tratamientos[i]
+
+        if tratamiento.idalgoritmo == 1:
+            calculo1([tratamiento])
+
+        elif tratamiento.idalgoritmo == 2:
+            calculo2([tratamiento])
+
+        elif tratamiento.idalgoritmo == 3:
+            calculo3([tratamiento])
+
+        else:
+            calculonormal([tratamiento])
 
 def mostrar_quinto(tratamientos):
     n = len(tratamientos)
@@ -160,6 +170,61 @@ def mostrar_quinto(tratamientos):
 
     if cta < 5:
         print('No hay suficientes tratamientos de alta complejidad.')
+
+
+def diferencia_promedio(tratamientos):
+    n = len(tratamientos)
+    acum = 0
+
+    for i in range(n):
+        tratamiento = tratamientos[i]
+
+        resta = tratamiento.montos_finales - float(tratamiento.montobase)
+        acum += resta
+
+    prom = round((acum / n), 2)
+
+    print()
+    return prom
+
+def contar_letra(tratamientos):
+    n = len(tratamientos)
+    letras = 26 * [0]
+    abecedario = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    for i in range(n):
+        tratamiento = tratamientos[i]
+
+        letra = tratamiento.icd10[0]
+        ind = abecedario.find(letra)
+
+        letras[ind] += 1
+
+    may_cant = letras[0]
+    posicion = 0
+
+    for k in range(26):
+        if letras[k] > may_cant:
+            may_cant = letras[k]
+            posicion = k
+
+    letra_mayor = abecedario[posicion]
+
+    return letra_mayor, may_cant
+
+def dni_mayor_monto(tratamientos):
+    n = len(tratamientos)
+    mayor_monto_final = 0
+
+    for i in range(n):
+        tratamiento = tratamientos[i]
+
+        if tratamiento.complejidad == "A":
+            if tratamiento.montos_finales > mayor_monto_final:
+                mayor_monto_final = tratamiento.montos_finales
+                r2_4 = tratamiento.dni
+
+    return r2_4
 
 def proces_linea(linea: str):
     data = []
@@ -195,10 +260,3 @@ def cargar_tratamientos():
             )
 
     return tratamientos, r1_1
-
-if __name__ == "__main__":#Seccion de prueba
-    tratamientos, r1_1 = cargar_tratamientos()
-
-    r1_2 = mostrar_quinto(tratamientos)
-    print('r1.1: ', r1_1)
-    print('r1.2: ', r1_2)
