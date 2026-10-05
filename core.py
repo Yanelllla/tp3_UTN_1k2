@@ -154,13 +154,9 @@ def calcular_monto_final(tratamientos):
             calculonormal([tratamiento])
 
 def mostrar_quinto(tratamientos):
-    n = len(tratamientos)
     cta = 0
 
-    for i in range(n):
-
-        tratamiento = tratamientos[i]
-
+    for tratamiento in tratamientos:
         if tratamiento.complejidad == "A":
             cta += 1
 
@@ -173,28 +169,31 @@ def mostrar_quinto(tratamientos):
 
 
 def diferencia_promedio(tratamientos):
-    n = len(tratamientos)
     acum = 0
 
-    for i in range(n):
-        tratamiento = tratamientos[i]
-
+    for tratamiento in tratamientos:
         resta = tratamiento.montos_finales - float(tratamiento.montobase)
         acum += resta
 
-    prom = round((acum / n), 2)
+    prom = round((acum / len(tratamientos)), 2)
 
     print()
     return prom
 
+
+def ord_array(sec: list[int]):
+    n = len(sec)
+    for i in range(0, n - 1):
+        for j in range(1, n):
+            if sec[i] > sec[j]:
+                sec[j], sec[i] = sec[i], sec[j]
+
+
 def contar_letra(tratamientos):
-    n = len(tratamientos)
     letras = 26 * [0]
     abecedario = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-    for i in range(n):
-        tratamiento = tratamientos[i]
-
+    for tratamiento in tratamientos:
         letra = tratamiento.icd10[0]
         ind = abecedario.find(letra)
 
@@ -241,12 +240,10 @@ def proces_linea(linea: str):
 
 def cargar_tratamientos():
     tratamientos = []
-    r1_1 = 0 #Contador de tratamientos
     f = open("tratamientos.csv", "r", encoding="utf-8")
     f.readline()
     for linea in f.readlines():
         data = proces_linea(linea)
-        r1_1 += 1
         tratamientos.append(
             Tratamiento(
                 dni=data[0],
@@ -255,13 +252,16 @@ def cargar_tratamientos():
                 icd10=data[3],
                 montobase=data[4],
                 complejidad=data[5],
-                idalgoritmo=data[6],
+                idalgoritmo=int(data[6]),
             )
         )
 
-    return tratamientos, r1_1
+    return tratamientos
 
 if __name__ == "__main__":
+    a = [3,12,5,7,21]
     print(
-        cargar_tratamientos()
+        a
     )
+    ord_array(a)
+    print(a)
