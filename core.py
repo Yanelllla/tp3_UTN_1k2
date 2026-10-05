@@ -242,21 +242,26 @@ def proces_linea(linea: str):
 def cargar_tratamientos():
     tratamientos = []
     r1_1 = 0 #Contador de tratamientos
-    with open("tratamientos.csv", "r", encoding="utf-8") as f:
-        f.readline()
-        for linea in f.readlines():
-            data = proces_linea(linea)
-            r1_1 += 1
-            tratamientos.append(
-                Tratamiento(
-                    dni=data[0],
-                    nombre=data[1],
-                    apellido=data[2],
-                    icd10=data[3],
-                    montobase=data[4],
-                    complejidad=data[5],
-                    idalgoritmo=data[6],
-                )
+    f = open("tratamientos.csv", "r", encoding="utf-8")
+    f.readline()
+    for linea in f.readlines():
+        data = proces_linea(linea)
+        r1_1 += 1
+        tratamientos.append(
+            Tratamiento(
+                dni=data[0],
+                nombre=data[1],
+                apellido=data[2],
+                icd10=data[3],
+                montobase=data[4],
+                complejidad=data[5],
+                idalgoritmo=data[6],
             )
+        )
 
     return tratamientos, r1_1
+
+if __name__ == "__main__":
+    print(
+        cargar_tratamientos()
+    )
