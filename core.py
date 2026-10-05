@@ -250,7 +250,7 @@ def cargar_tratamientos():
                 nombre=data[1],
                 apellido=data[2],
                 icd10=data[3],
-                montobase=data[4],
+                montobase=float(data[4]),
                 complejidad=data[5],
                 idalgoritmo=int(data[6]),
             )
