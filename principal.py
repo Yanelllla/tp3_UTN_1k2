@@ -1,4 +1,3 @@
-from core import Tratamiento
 import core
 
 def principal():
@@ -12,7 +11,8 @@ def principal():
         op = int(input("Ingrese opción: "))
 
         if op == 1:
-            tratamientos, r1_1 = core.cargar_tratamientos()
+            tratamientos = core.cargar_tratamientos()
+            r1_1 = len(tratamientos)
             core.calcular_monto_final(tratamientos)
             r1_2 = core.mostrar_quinto(tratamientos)
 
