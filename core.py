@@ -258,5 +258,4 @@ def cargar_tratamientos():
                     idalgoritmo=data[6],
                 )
             )
-
     return tratamientos, r1_1
