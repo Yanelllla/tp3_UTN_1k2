@@ -20,7 +20,11 @@ class Tratamiento:
         return r
 
 
-def 
+def proces_pago_1(monto_base: float|int, codigo: str):
+    porcentaje_extra = 0
+    if monto_base > 60000:
+        
+
 
 def proces_linea(linea: str):
     data = []
