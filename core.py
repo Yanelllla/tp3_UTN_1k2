@@ -186,12 +186,9 @@ def contar_letra(tratamientos):
     return letra_mayor, may_cant
 
 def dni_mayor_monto(tratamientos):
-    n = len(tratamientos)
     mayor_monto_final = 0
 
-    for i in range(n):
-        tratamiento = tratamientos[i]
-
+    for tratamiento in tratamientos:
         if tratamiento.complejidad == "A":
             if tratamiento.montos_finales > mayor_monto_final:
                 mayor_monto_final = tratamiento.montos_finales
