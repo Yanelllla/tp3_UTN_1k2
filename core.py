@@ -21,12 +21,6 @@ class Tratamiento:
         r += f"|Monto Final:{self.montos_finales:<10}"
         return r
 
-def porcentaje_normal(tratamiento):
-    punto = tratamiento.icd10.find(".")
-    porcentaje_extra = int(tratamiento.icd10[punto + 1:]) / 100
-
-    return porcentaje_extra
-
 def calculonormal(tratamiento: Tratamiento):
     ad_al = 25000
     ad_mz = 40000
@@ -48,21 +42,25 @@ def calculonormal(tratamiento: Tratamiento):
 
     monto = float(tratamiento.montobase) + fijo + adicional #Base+fijo+adicional(depende de la letra)
 
-    porcentaje = round((float(tratamiento.montobase) * numpunto / 100),2)#Saca el porcentaje y lo redondea en dos numeros despues de la coma
+    porcentaje = round((monto * numpunto / 100),2)#Saca el porcentaje y lo redondea en dos numeros despues de la coma
 
     tratamiento.montos_finales = monto + porcentaje
 
+    return porcentaje
+
 def monto_fijo(tratamiento: Tratamiento):
 
-    bloque = tratamiento.icd10[1:2]
+    punto = tratamiento.icd10.find(".")
+    bloque = int(tratamiento.icd10[punto + 1:])
+    letra = tratamiento.icd10[0]
 
-    if "A" <= tratamiento.icd10 <= "L":
+    if "A" <= letra <= "L":
         monto_fijo = 20000
 
-    elif "M" <= tratamiento.icd10 <= "P":
+    elif "M" <= letra <= "P":
         monto_fijo = 15000 + 5000 * int(bloque)
 
-    else:
+    elif "Q" <= letra <= "Z":
         monto_fijo = tratamiento.montobase * 0.10
 
     return monto_fijo
@@ -74,7 +72,7 @@ def calculo1(tratamiento: Tratamiento):
     letra = tratamiento.icd10[0]
 
     if tratamiento.montobase > 60000:
-        porcentaje_extra = porcentaje_normal(tratamiento)
+        porcentaje_extra = calculonormal(tratamiento)
 
         if tratamiento.complejidad == "A" and letra != "U":
             suma_fija = tratamiento.montobase / 2
@@ -87,11 +85,11 @@ def calculo2(tratamiento: Tratamiento):
     punto = tratamiento.icd10.find(".")
 
     if "A" <= letra <= "P":
-        porcentaje_extra = porcentaje_normal(tratamiento)
+        porcentaje_extra = calculonormal(tratamiento)
 
     elif "Q" <= letra <= "Z":
         if tratamiento.complejidad == "A":
-            porcentaje_extra = (int(tratamiento.icd10[punto + 1:]) * 2) / 100
+            porcentaje_extra = (float(tratamiento.montobase) * int(tratamiento.icd10[punto + 1:]) * 2 / 100)
 
         elif tratamiento.complejidad == "R":
             porcentaje_extra = tratamiento.montobase * 0.15
@@ -99,10 +97,10 @@ def calculo2(tratamiento: Tratamiento):
     tratamiento.montos_finales = tratamiento.montobase + porcentaje_extra
 
 def calculo3(tratamiento: Tratamiento):
-    #monto_extra = 0 EXPLICAR EL PORQUE DE ESTA VARIABLE SIN USO
 
     if tratamiento.complejidad == "A":
         monto_extra = tratamiento.montobase * 0.30
+        monto_extra += monto_fijo(tratamiento)
 
     else:# PARA QUE LA CONDICION ANTERIOR SEA VALIDA SE TIENE QUE PONER UN IF O ELIF PARA QUE NO SOBRE ESCRIBA EL VALOR DE ESTA VARIABLE
         monto_extra = monto_fijo(tratamiento)
@@ -165,21 +163,26 @@ def ord_array(sec: list[int]):
             if sec[i] > sec[j]:
                 sec[j], sec[i] = sec[i], sec[j]
 
-
 def contar_letra(tratamientos):
+    n = len(tratamientos)
     letras = 26 * [0]
     abecedario = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-    for tratamiento in tratamientos:
+    for i in range(n):
+        tratamiento = tratamientos[i]
+
         letra = tratamiento.icd10[0]
         ind = abecedario.find(letra)
 
         letras[ind] += 1
 
-    ord_array(letras)
-
-    may_cant = letras[-1]
+    may_cant = letras[0]
     posicion = 0
+
+    for k in range(26):
+        if letras[k] > may_cant:
+            may_cant = letras[k]
+            posicion = k
 
     letra_mayor = abecedario[posicion]
 
