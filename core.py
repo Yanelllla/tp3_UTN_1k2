@@ -155,14 +155,6 @@ def diferencia_promedio(tratamientos):
     print()
     return prom
 
-
-def ord_array(sec: list[int]):
-    n = len(sec)
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            if sec[i] > sec[j]:
-                sec[j], sec[i] = sec[i], sec[j]
-
 def contar_letra(tratamientos):
     n = len(tratamientos)
     letras = 26 * [0]
