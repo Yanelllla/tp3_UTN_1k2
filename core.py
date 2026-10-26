@@ -21,6 +21,22 @@ class Tratamiento:
         r += f"|Monto Final:{self.montos_finales:<10}"
         return r
 
+
+class Coberturas:
+    def __init__(self, dni, codigo_obra_social, nivel_cobertura, tope_atencion):
+        self.dni = dni
+        self.codigo_obra_social = codigo_obra_social
+        self.nivel_cobertura = nivel_cobertura
+        self.tope_atencion = tope_atencion
+
+    def __str__(self) -> str:
+        r = "Cobertura"
+        r += f"|DNI:{self.dni:<8}"
+        r += f"|Codigo de Obra Social:{self.codigo_obra_social:<8}"
+        r += f"|Nivel de Cobertura:{self.nivel_cobertura:<8}"
+        r += f"|Tope de Atencion:{self.tope_atencion:<8}"
+        return r
+
 def calculonormal(tratamiento: Tratamiento):
     ad_al = 25000
     ad_mz = 40000
@@ -111,10 +127,8 @@ def calculo3(tratamiento: Tratamiento):
     tratamiento.montos_finales = tratamiento.montobase + monto_extra
 
 def calcular_monto_final(tratamientos: list[Tratamiento]):
-    n = len(tratamientos)
 
-    for i in range(n):
-        tratamiento = tratamientos[i]
+    for tratamiento in tratamientos:
 
         if tratamiento.idalgoritmo == 1:
             calculo1(tratamiento)
@@ -143,7 +157,7 @@ def mostrar_quinto(tratamientos):
         print('No hay suficientes tratamientos de alta complejidad.')
 
 
-def diferencia_promedio(tratamientos):
+def diferencia_promedio(tratamientos: list[Tratamiento]):
     acum = 0
 
     for tratamiento in tratamientos:
@@ -156,20 +170,11 @@ def diferencia_promedio(tratamientos):
     return prom
 
 
-def ord_array(sec: list[int]):
-    n = len(sec)
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            if sec[i] > sec[j]:
-                sec[j], sec[i] = sec[i], sec[j]
-
 def contar_letra(tratamientos):
-    n = len(tratamientos)
     letras = 26 * [0]
     abecedario = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-    for i in range(n):
-        tratamiento = tratamientos[i]
+    for tratamiento in tratamientos:
 
         letra = tratamiento.icd10[0]
         ind = abecedario.find(letra)
@@ -212,7 +217,45 @@ def proces_linea(linea: str):
             palabra += ch
     return data
 
-def cargar_tratamientos():
+
+def insert_in_order_dni(c: Coberturas, v:list[Coberturas]):# BULLSHIT
+    n = len(v)
+    i,d = 0, n - 1
+    idx = "Nigga" #TODO: cambien esto XD
+    while i <= d:
+        p = (i + d) // 2
+        c_p = v[p]
+        if c_p.dni == c.dni:
+            idx = c
+            break
+        if c_p.dni > c.dni:
+            i += p + 1
+        else:
+            d += p - 1
+    if i > d:
+        idx = i
+    v[idx:idx] = [c]
+
+def load_coberturas() -> list[Coberturas]:
+    coberturas = []
+    f = open("coberturas.csv", "r", encoding="utf-8")
+    f.readline()
+    for line in f.readlines():
+        data = proces_linea(line)
+        insert_in_order_dni(
+            Coberturas(
+                dni=data[0],
+                codigo_obra_social=data[1],
+                nivel_cobertura=data[2],
+                tope_atencion=data[3]
+            ),
+            coberturas
+        )
+
+    return coberturas
+
+
+def load_tratamientos() -> list[Tratamiento]:
     tratamientos = []
     f = open("tratamientos.csv", "r", encoding="utf-8")
     f.readline()

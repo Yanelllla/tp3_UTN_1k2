@@ -2,16 +2,21 @@ import core
 
 def principal():
 
+    tratamientos = [] #Default
+    coberturas = []
     op = -1
     while op != 0:
-        print("1. Cargar tratamientos")
-        print("2. Mostrar resultados")
-        print("3. Salir(0)")
+        print("1. Cargar afiliados")
+        print("2. Cargar tratamientos")
+        print("3. Mostrar resultados")
+        print("0. Salir")
         print()
         op = int(input("Ingrese opción: "))
-
         if op == 1:
-            tratamientos = core.cargar_tratamientos()
+            coberturas = core.load_coberturas()
+
+        if op == 2:
+            tratamientos = core.load_tratamientos()
             r1_1 = len(tratamientos)
             core.calcular_monto_final(tratamientos)
             r1_2 = core.mostrar_quinto(tratamientos)
@@ -20,7 +25,7 @@ def principal():
             print("r1.2:", r1_2)
             print()
 
-        if op == 2:
+        if op == 3:
             r2_1 = core.diferencia_promedio(tratamientos)
             letra_mayor, may_cant = core.contar_letra(tratamientos)
             r2_4 = core.dni_mayor_monto(tratamientos)
