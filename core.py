@@ -169,7 +169,6 @@ def diferencia_promedio(tratamientos: list[Tratamiento]):
     print()
     return prom
 
-
 def contar_letra(tratamientos):
     letras = 26 * [0]
     abecedario = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
