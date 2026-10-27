@@ -8,6 +8,10 @@ class Tratamiento:
         self.complejidad = complejidad
         self.idalgoritmo = idalgoritmo
         self.montos_finales = 0
+        self.monto_cubierto = 0
+        self.monto_no_cubierto = 0
+        self.tope_aplicado = False
+        self.codigo_obra_social = 0
 
     def __str__(self):
         r = "Tratamiento"
@@ -142,66 +146,109 @@ def calcular_monto_final(tratamientos: list[Tratamiento]):
         else:
             calculonormal(tratamiento)
 
-def mostrar_quinto(tratamientos):
-    cta = 0
+def buscar_cobertura(coberturas: list[Coberturas], dni: int):
+    i = 0
+    d = len(coberturas) - 1
+
+    while i <= d:
+        p = (i + d) // 2
+        cobertura = coberturas[p]
+
+        if cobertura.dni == dni:
+            return cobertura
+        elif dni < cobertura.dni:
+            d = p - 1
+        else:
+            i = p + 1
+
+    return None
+
+def cobertura(tratamientos: list[Tratamiento], coberturas: list[Coberturas]):
 
     for tratamiento in tratamientos:
-        if tratamiento.complejidad == "A":
-            cta += 1
+        afiliado = buscar_cobertura(coberturas, tratamiento.dni)
 
-            if cta == 5:
-                r1_2 = tratamiento.apellido
-                return r1_2
+        if afiliado is None:
+            tratamiento.monto_cubierto = 0
+            tratamiento.monto_no_cubierto = tratamiento.montos_finales
+            tratamiento.tope_aplicado = False
+            tratamiento.codigo_obra_social = 0
 
-    if cta < 5:
-        print('No hay suficientes tratamientos de alta complejidad.')
+        else:
+            tratamiento.codigo_obra_social = afiliado.codigo_obra_social
 
+            if afiliado.nivel_cobertura == 1:
+                if tratamiento.complejidad == "R":
+                    porcentaje = 0.50
+                else:
+                    porcentaje = 0.40
 
-def diferencia_promedio(tratamientos: list[Tratamiento]):
-    acum = 0
+            elif afiliado.nivel_cobertura == 2:
+                if tratamiento.complejidad == "R":
+                    porcentaje = 0.70
+                else:
+                    porcentaje = 0.60
+
+            else:
+                if tratamiento.complejidad == "R":
+                    porcentaje = 0.90
+                else:
+                    porcentaje = 0.80
+
+            monto = round(tratamiento.montos_finales * porcentaje, 2)
+
+            if monto > afiliado.tope_atencion:
+                monto = afiliado.tope_atencion
+                tratamiento.tope_aplicado = True
+
+            else:
+                tratamiento.tope_aplicado = False
+
+            tratamiento.monto_cubierto = monto
+            tratamiento.monto_no_cubierto = round(tratamiento.montos_finales - monto, 2)
+
+def calcular_resultados(tratamientos: list[Tratamiento], coberturas: list[Coberturas]):
+
+    total_cubierto = 0
+    total_no_cubierto = 0
+    cantidad_topes = 0
+    cantidad_sin_cobertura = 0
+
+    montos_obras_sociales = 21 * [0]
+
+    mayor_no_cubierto = tratamientos[0].monto_no_cubierto
+    dni_mayor_no_cubierto = tratamientos[0].dni
 
     for tratamiento in tratamientos:
-        resta = tratamiento.montos_finales - float(tratamiento.montobase)
-        acum += resta
 
-    prom = round((acum / len(tratamientos)), 2)
+        total_cubierto += tratamiento.monto_cubierto
+        total_no_cubierto += tratamiento.monto_no_cubierto
 
-    print()
-    return prom
+        if tratamiento.tope_aplicado:
+            cantidad_topes += 1
 
-def contar_letra(tratamientos):
-    letras = 26 * [0]
-    abecedario = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        if tratamiento.codigo_obra_social == 0:
+            cantidad_sin_cobertura += 1
+        else:
+            codigo = tratamiento.codigo_obra_social
+            montos_obras_sociales[codigo] += tratamiento.monto_cubierto
 
-    for tratamiento in tratamientos:
+        # Usar > y no >= para conservar el primero en caso de empate
+        if tratamiento.monto_no_cubierto > mayor_no_cubierto:
+            mayor_no_cubierto = tratamiento.monto_no_cubierto
+            dni_mayor_no_cubierto = tratamiento.dni
 
-        letra = tratamiento.icd10[0]
-        ind = abecedario.find(letra)
+    # Buscar la obra social que cubrió el mayor monto.
+    # En caso de empate, queda el código menor.
+    mayor_cubierto = -1
+    codigo_mayor = 1
 
-        letras[ind] += 1
+    for codigo in range(1, 21):
+        if montos_obras_sociales[codigo] > mayor_cubierto:
+            mayor_cubierto = montos_obras_sociales[codigo]
+            codigo_mayor = codigo
 
-    may_cant = letras[0]
-    posicion = 0
-
-    for k in range(26):
-        if letras[k] > may_cant:
-            may_cant = letras[k]
-            posicion = k
-
-    letra_mayor = abecedario[posicion]
-
-    return letra_mayor, may_cant
-
-def dni_mayor_monto(tratamientos):
-    mayor_monto_final = 0
-
-    for tratamiento in tratamientos:
-        if tratamiento.complejidad == "A":
-            if tratamiento.montos_finales > mayor_monto_final:
-                mayor_monto_final = tratamiento.montos_finales
-                r2_4 = tratamiento.dni
-
-    return r2_4
+    return total_cubierto, total_no_cubierto, cantidad_topes, cantidad_sin_cobertura, codigo_mayor, dni_mayor_no_cubierto
 
 def proces_linea(linea: str):
     data = []
@@ -216,41 +263,43 @@ def proces_linea(linea: str):
             palabra += ch
     return data
 
+def insert_in_order_dni(c, v):
+    i = 0
+    d = len(v) - 1
 
-def insert_in_order_dni(c: Coberturas, v:list[Coberturas]):# BULLSHIT
-    n = len(v)
-    i,d = 0, n - 1
-    idx = "Nigga" #TODO: cambien esto XD
     while i <= d:
         p = (i + d) // 2
-        c_p = v[p]
-        if c_p.dni == c.dni:
-            idx = c
+
+        if v[p].dni == c.dni:
             break
-        if c_p.dni > c.dni:
-            i += p + 1
+        elif v[p].dni > c.dni:
+            d = p - 1
         else:
-            d += p - 1
-    if i > d:
-        idx = i
-    v[idx:idx] = [c]
+            i = p + 1
+
+    if i <= d:
+        pos = p
+    else:
+        pos = i
+
+    v[pos:pos] = [c]
 
 def load_coberturas() -> list[Coberturas]:
     coberturas = []
     f = open("coberturas.csv", "r", encoding="utf-8")
     f.readline()
-    for line in f.readlines():
-        data = proces_linea(line)
+    for linea in f.readlines():
+        data = proces_linea(linea)
         insert_in_order_dni(
             Coberturas(
-                dni=data[0],
-                codigo_obra_social=data[1],
-                nivel_cobertura=data[2],
-                tope_atencion=data[3]
+                dni=int(data[0]),
+                codigo_obra_social=int(data[1]),
+                nivel_cobertura=int(data[2]),
+                tope_atencion=float(data[3])
             ),
             coberturas
         )
-
+    f.close()
     return coberturas
 
 
@@ -262,7 +311,7 @@ def load_tratamientos() -> list[Tratamiento]:
         data = proces_linea(linea)
         tratamientos.append(
             Tratamiento(
-                dni=data[0],
+                dni=int(data[0]),
                 nombre=data[1],
                 apellido=data[2],
                 icd10=data[3],
@@ -271,5 +320,5 @@ def load_tratamientos() -> list[Tratamiento]:
                 idalgoritmo=int(data[6]),
             )
         )
-
+    f.close()
     return tratamientos
